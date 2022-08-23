@@ -84,7 +84,7 @@ public class App {
         }
     }
 
-	private void viewCurrentBalance() {
+	private void viewCurrentBalance() { //create account model, each starts with 1,000.00.
 		// TODO Auto-generated method stub
 		
 	}
