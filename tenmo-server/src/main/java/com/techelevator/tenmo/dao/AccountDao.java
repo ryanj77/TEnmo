@@ -1,5 +1,8 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Account;
+
+// blueprint for interacting with "account" table
 public interface AccountDao {
-    //blueprint for interacting with "account" table
+    Account findByUsername(String username) throws Exception;
 }
