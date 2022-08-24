@@ -4,6 +4,7 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -88,4 +89,7 @@ public class ConsoleService {
         System.out.println("An error occurred. Check the log for details.");
     }
 
+    public void printAccountBalance(BigDecimal balance) {
+        System.out.println("Your current account balance is: " + NumberFormat.getCurrencyInstance().format(balance));
+    }
 }
