@@ -19,7 +19,7 @@ public class ConsoleService {
     private static final String LIST_FOOTER = "---------";
 
     // TODO Improve this message
-    public static final String NOBODY_TO_SEND_MONEY_TO_MESSAGE = "There are no other users in the system. There's nobody for you to send money to!";
+    public static final String NOBODY_TO_SEND_MONEY_TO_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
 
     private final Scanner scanner = new Scanner(System.in);
 

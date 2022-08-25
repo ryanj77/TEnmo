@@ -96,6 +96,7 @@ public class App {
         if (balance == null) {
             // TODO Change to print good error message
             consoleService.printErrorMessage();
+            System.out.println("Unable to display balance.");
         }
         else {
             consoleService.printAccountBalance(balance);
@@ -115,8 +116,9 @@ public class App {
 	private void sendBucks() {
         PublicUserInfoDTO[] users = accountService.getUsers(currentUser);
         if (users == null) {
-            // TODO Change to print good error message
+            
             consoleService.printErrorMessage();
+            System.out.println("Unable to send TE bucks.");
         }
         else {
             List<PublicUserInfoDTO> otherUsers = new ArrayList<>();
@@ -137,6 +139,25 @@ public class App {
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
-		
+        PublicUserInfoDTO[] users = accountService.getUsers(currentUser);
+        if (users == null) {
+            consoleService.printErrorMessage();
+            System.out.println("Unable to request TE bucks.");
+        }
+        else {
+            List<PublicUserInfoDTO> otherUsers = new ArrayList<>();
+            for (PublicUserInfoDTO user : users) {
+                if (user.getId() != currentUser.getUser().getId()) {
+                    otherUsers.add(user);
+                }
+            }
+            if (otherUsers.isEmpty()) {
+                consoleService.printNobodyToSendMoneyToMessage();
+            }
+            else {
+                consoleService.printMoneySendMenu(otherUsers);
+                // TODO Implement the rest (prompt for user and send $ to that user)
+            }
+        }
 	}
 }
