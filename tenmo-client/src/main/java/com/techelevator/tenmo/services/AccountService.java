@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.PublicUserInfoDTO;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,19 @@ public class AccountService {
             BasicLogger.log(e.getMessage());
         }
         return balance;
+    }
+
+    public PublicUserInfoDTO[] getUsers(AuthenticatedUser user) {
+        PublicUserInfoDTO[] userInfos = null;
+        try {
+            userInfos = restTemplate.exchange(baseUrl + "getusers", HttpMethod.GET, makeAuthEntity(user),
+                    PublicUserInfoDTO[].class).getBody();
+        } catch (RestClientResponseException e) {
+            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return userInfos;
     }
 
     private HttpEntity<Void> makeAuthEntity(AuthenticatedUser user) {
