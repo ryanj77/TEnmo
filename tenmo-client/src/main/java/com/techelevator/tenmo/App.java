@@ -1,12 +1,15 @@
 package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.PublicUserInfoDTO;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
 
@@ -40,17 +43,17 @@ public class App {
             } else if (menuSelection == 2) {
                 handleLogin();
             } else if (menuSelection != 0) {
-                System.out.println("Invalid Selection");
+                consoleService.printMessage("Invalid Selection");
                 consoleService.pause();
             }
         }
     }
 
     private void handleRegister() {
-        System.out.println("Please register a new user account");
+        consoleService.printMessage("Please register a new user account");
         UserCredentials credentials = consoleService.promptForCredentials();
         if (authenticationService.register(credentials)) {
-            System.out.println("Registration successful. You can now login.");
+            consoleService.printMessage("Registration successful. You can now login.");
         } else {
             consoleService.printErrorMessage();
         }
@@ -82,7 +85,7 @@ public class App {
             } else if (menuSelection == 0) {
                 continue;
             } else {
-                System.out.println("Invalid Selection");
+                consoleService.printMessage("Invalid Selection");
             }
             consoleService.pause();
         }
@@ -110,13 +113,30 @@ public class App {
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+        PublicUserInfoDTO[] users = accountService.getUsers(currentUser);
+        if (users == null) {
+            // TODO Change to print good error message
+            consoleService.printErrorMessage();
+        }
+        else {
+            List<PublicUserInfoDTO> otherUsers = new ArrayList<>();
+            for (PublicUserInfoDTO user : users) {
+                if (user.getId() != currentUser.getUser().getId()) {
+                    otherUsers.add(user);
+                }
+            }
+            if (otherUsers.isEmpty()) {
+                consoleService.printNobodyToSendMoneyToMessage();
+            }
+            else {
+                consoleService.printMoneySendMenu(otherUsers);
+                // TODO Implement the rest (prompt for user and send $ to that user)
+            }
+        }
 	}
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

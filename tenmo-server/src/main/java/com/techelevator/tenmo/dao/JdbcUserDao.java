@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.PublicUserInfoDTO;
 import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,6 +49,18 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public List<PublicUserInfoDTO> findAllPublic() {
+        List<PublicUserInfoDTO> userInfos = new ArrayList<>();
+        String sql = "SELECT user_id, username FROM tenmo_user;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while(results.next()) {
+            PublicUserInfoDTO userInfo = mapRowToPublicUserInfo(results);
+            userInfos.add(userInfo);
+        }
+        return userInfos;
+    }
+
+    @Override
     public User findByUsername(String username) throws UsernameNotFoundException {
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username ILIKE ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
@@ -89,5 +102,12 @@ public class JdbcUserDao implements UserDao {
         user.setActivated(true);
         user.setAuthorities("USER");
         return user;
+    }
+
+    private PublicUserInfoDTO mapRowToPublicUserInfo(SqlRowSet rs) {
+        PublicUserInfoDTO userInfo = new PublicUserInfoDTO();
+        userInfo.setId(rs.getLong("user_id"));
+        userInfo.setUsername(rs.getString("username"));
+        return userInfo;
     }
 }

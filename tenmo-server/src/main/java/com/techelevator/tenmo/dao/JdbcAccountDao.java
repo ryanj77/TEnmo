@@ -17,7 +17,7 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public Account findByUsername(String username) throws Exception {
+    public Account findByUsername(String username) throws AccountNotFoundException {
         String sql = "SELECT account_id, account.user_id as user_id, balance " +
                 "FROM account " +
                 "JOIN tenmo_user on tenmo_user.user_id = account.user_id " +
