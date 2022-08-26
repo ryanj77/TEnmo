@@ -94,7 +94,6 @@ public class App {
 	private void viewCurrentBalance() { //create account model, each starts with 1,000.00.
         BigDecimal balance = accountService.getBalance(currentUser);
         if (balance == null) {
-            // TODO Change to print good error message
             consoleService.printErrorMessage();
             System.out.println("Unable to display balance.");
         }
@@ -116,7 +115,7 @@ public class App {
 	private void sendBucks() {
         PublicUserInfoDTO[] users = accountService.getUsers(currentUser);
         if (users == null) {
-            
+
             consoleService.printErrorMessage();
             System.out.println("Unable to send TE bucks.");
         }
@@ -135,6 +134,7 @@ public class App {
                 // TODO Implement the rest (prompt for user and send $ to that user)
             }
         }
+
 	}
 
 	private void requestBucks() {
@@ -156,7 +156,7 @@ public class App {
             }
             else {
                 consoleService.printMoneySendMenu(otherUsers);
-                // TODO Implement the rest (prompt for user and send $ to that user)
+                // TODO Implement the rest (prompt for user and request $ from that user)
             }
         }
 	}
