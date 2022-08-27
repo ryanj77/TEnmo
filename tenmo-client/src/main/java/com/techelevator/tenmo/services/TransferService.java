@@ -130,4 +130,35 @@ public class TransferService {
         }
     }
 
+    public String determineTransferType(int typeID){
+        String message = "";
+        if(typeID == 1){
+            message = "Funds Sent";
+        }
+        else if(typeID == 2){
+            message = "Funds Requested";
+        }
+        else {
+            message = "Error determining request type";
+        }
+        return message;
+    }
+
+    public String determineTransferStatus(int typeID){
+        String message = "";
+        if(typeID == 1){
+            message = "Approval Pending";
+        }
+        else if(typeID == 2){
+            message = "Transfer Approved";
+        }
+        else if(typeID == 3){
+            message = "Transfer Rejected";
+        }
+        else {
+            message = "Error in determining transfer status.";
+        }
+        return message;
+    }
+
 }

@@ -144,4 +144,40 @@ public class ConsoleService {
         System.out.println("Amount: " + amount);
     }
 
+    public void printTransferDeetsShortHeader() {
+
+        System.out.println("-----------------------");
+        System.out.println("Transfers");
+        System.out.println("ID      From/To        Amount");
+        System.out.println("-----------------------");
+
+    }
+
+    public void printApprovalOption(){
+        System.out.println("1: Approve");
+        System.out.println("2: Reject");
+        System.out.println("0: Don't approve or reject");
+        System.out.println(" ---------");
+    }
+
+    public void pendingRequestHeader(){
+        System.out.println("-----------------------");
+        System.out.println("Pending Transfers");
+        System.out.println("ID      From/To        Amount");
+        System.out.println("-----------------------");
+    }
+
+    public void typeFormattingRequestDisplay(int type){
+        String message;
+        if(type == 1){
+            message = "To:      ";
+        }
+        else if(type == 2){
+            message = "From: ";
+        }
+        else{
+            System.out.println("Error in type formatting");
+        }
+    }
+
 }
