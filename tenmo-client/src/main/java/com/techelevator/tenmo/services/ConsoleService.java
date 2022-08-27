@@ -1,7 +1,9 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.PublicUserInfoDTO;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -129,4 +131,17 @@ public class ConsoleService {
     public void printNobodyToSendMoneyToMessage() {
         System.out.println(NOBODY_TO_SEND_MONEY_TO_MESSAGE);
     }
+
+    public void printTransferDeets(int id, String from, String to, String type, String status, BigDecimal amount) {
+        System.out.println("------------------");
+        System.out.println("Transfer Details");
+        System.out.println("------------------");
+        System.out.println("Id: " + id);
+        System.out.println("From: " + from);
+        System.out.println("To: " + to);
+        System.out.println("Type: " + type);
+        System.out.println("Status: " + status);
+        System.out.println("Amount: " + amount);
+    }
+
 }

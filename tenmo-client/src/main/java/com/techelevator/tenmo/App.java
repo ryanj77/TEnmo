@@ -2,10 +2,9 @@ package com.techelevator.tenmo;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.PublicUserInfoDTO;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ public class App {
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
     private final AccountService accountService = new AccountService(API_BASE_URL + "tenmo/");
 
+    private TransferService transferService;
     private AuthenticatedUser currentUser;
 
     public static void main(String[] args) {
@@ -104,12 +104,60 @@ public class App {
 
 	private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-		
+        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+        System.out.println("-----------------------");
+        System.out.println("Transfers");
+        System.out.println("ID      From/To        Amount");
+        System.out.println("-----------------------");
+
+        int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
+        for(Transfer transfer: transfers) {
+            printTransferDeetsShort(currentUser, transfer);
+        }
+
+        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
+        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+        if(transferChoice !=null){
+            printTransferDeets(currentUser, transferChoice);
+        }
+
 	}
 
-	private void viewPendingRequests() {
+    private void printTransferDeets(AuthenticatedUser currentUser, Transfer transferChoice) {
+        int id = transferChoice.getTransferID();
+        BigDecimal amount = transferChoice.getTransferAmt();
+        int sendingAccount = transferChoice.getFromAccountID();
+        int receivingAccount = transferChoice.getToAccountID();
+        int transactionTypeId = transferChoice.getTransferTypeID();
+        int transactionStatusId = transferChoice.getTransferStatusID();
+
+        int sendingUserId = accountService.getAccountByUserId(currentUser, sendingAccount).getUserId();
+        String sendingUserName = UserService.getUserViaUserId(currentUser, sendingUserId).getUsername();
+        int receivingUserId = accountService.getAccountByUserId(currentUser, receivingAccount).getUserId();
+        String receivingUserName = UserService.getUserViaUserId(currentUser, receivingUserId).getUsername();
+        //TODO add types and status for transfer/transaction
+
+        consoleService.printTransferDeets(id, sendingUserName, receivingUserName, transactionType, transactionStatus, amount);
+    }
+
+    private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-		
+        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+        System.out.println("-----------------------");
+        System.out.println("Pending Transfers");
+        System.out.println("ID      From/To        Amount");
+        System.out.println("-----------------------");
+
+        for(Transfer transfer: transfers) {
+            printTransferDeets(currentUser, transfer);
+        }
+
+        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to approve or reject - otherwise press 0 to cancel.");
+        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+        if(transferChoice !=null){
+            approvalProcess(currentUser, transferChoice);
+        }
+
 	}
 
 	private void sendBucks() {
@@ -132,14 +180,25 @@ public class App {
             else {
                 consoleService.printMoneySendMenu(otherUsers);
                 // TODO Implement the rest (prompt for user and send $ to that user)
+                int userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
+                if(userValidation(userSelection, users, currentUser)){
+                    String chooseAmount = consoleService.promptForInt("How much are you sending?");
+                    transferService.createTransfer(userSelection, chooseAmount, "Send", "Approved");
+                }
             }
         }
 
 	}
 
-	private void requestBucks() {
+    private boolean userValidation(int userSelection, PublicUserInfoDTO[] users, AuthenticatedUser currentUser) {
+       //TODO complete method, need to upload now
+        return false;
+    }
+
+    private void requestBucks() {
 		// TODO Auto-generated method stub
         PublicUserInfoDTO[] users = accountService.getUsers(currentUser);
+
         if (users == null) {
             consoleService.printErrorMessage();
             System.out.println("Unable to request TE bucks.");
@@ -157,6 +216,10 @@ public class App {
             else {
                 consoleService.printMoneySendMenu(otherUsers);
                 // TODO Implement the rest (prompt for user and request $ from that user)
+                int userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
+                if(userValidation(userSelection, users, currentUser)){
+                    String chooseAmount = consoleService.promptForInt("How much are you asking for?");
+                    transferService.createTransfer(userSelection, chooseAmount, "Request", "Pending");
             }
         }
 	}
