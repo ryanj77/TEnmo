@@ -182,13 +182,16 @@ public class App {
                 // TODO Implement the rest (prompt for user and send $ to that user)
                 int userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
                 if(userValidation(userSelection, users, currentUser)){
-                    String chooseAmount = consoleService.promptForInt("How much are you sending?");
-                    transferService.createTransfer(userSelection, chooseAmount, "Send", "Approved");
+                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you sending?");
+                    createTransfer(userSelection, chooseAmount, "Send", "Approved");
                 }
             }
         }
 
 	}
+
+    private void createTransfer(int userSelection, BigDecimal chooseAmount, String send, String approved) {
+    }
 
     private boolean userValidation(int userSelection, PublicUserInfoDTO[] users, AuthenticatedUser currentUser) {
        //TODO complete method, need to upload now
@@ -212,15 +215,33 @@ public class App {
             }
             if (otherUsers.isEmpty()) {
                 consoleService.printNobodyToSendMoneyToMessage();
-            }
-            else {
+            } else {
                 consoleService.printMoneySendMenu(otherUsers);
                 // TODO Implement the rest (prompt for user and request $ from that user)
                 int userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
-                if(userValidation(userSelection, users, currentUser)){
-                    String chooseAmount = consoleService.promptForInt("How much are you asking for?");
-                    transferService.createTransfer(userSelection, chooseAmount, "Request", "Pending");
+                if (userValidation(userSelection, users, currentUser)) {
+                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you asking for?");
+                    createTransfer(userSelection, chooseAmount, "Request", "Pending");
+                }
             }
         }
-	}
+    }
+    public void approvalProcess(AuthenticatedUser authenticatedUser, Transfer pendingTransfer ){
+            consoleService.printApprovalOption();
+            int choice= consoleService.promptForInt("Please approve (1) or deny (2):");
+            if (choice!=0){
+                if (choice==1){
+                    int transferStatusID = transferService.getTransferStatus(currentUser, "Approved").getTransferStatusID();
+                    pendingTransfer.setTransferStatusId(transferStatusId);
+                }
+                else if (choice==2){
+                    int transferStatusID = transferService.getTransferStatus(currentUser, "Rejected").getTransferStatusID();
+                    pendingTransfer.setTransferStatusId(transferStatusId);
+
+                }
+                else System.out.println("Invalid choice, please only select (1) or (2)");
+                transferService.updateTransfer(currentUser, pendingTransfer);
+            }
+
+        }
 }
