@@ -100,24 +100,22 @@ public class App {
     }
 
     private void viewTransferHistory() {
-// WONT_COMPILE
-//		// TODO Auto-generated method stub
-//        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
-//        consoleService.printTransferDeetsShortHeader();
-//
-//        int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
-//        for(Transfer transfer: transfers) {
-//            consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
-//
-//
-//        }
-//
-//        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
-//        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
-//        if(transferChoice !=null){
-//            printTransferDeets(currentUser, transferChoice);
-//        }
-// WONT_COMPILE_END
+		// TODO Auto-generated method stub
+        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+        consoleService.printTransferDeetsShortHeader();
+
+        int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
+        for(Transfer transfer: transfers) {
+            consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
+
+
+        }
+
+        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
+        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+        if(transferChoice !=null){
+            printTransferDeets(currentUser, transferChoice);
+        }
 
     }
 
@@ -141,24 +139,22 @@ public class App {
     }
 
     private void viewPendingRequests() {
-// WONT_COMPILE_BEGIN
-//
-//		// TODO Auto-generated method stub
-//        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
-//       consoleService.pendingRequestHeader();
-//
-//        for(Transfer transfer: transfers) {
-//            if (transfer.getTransferStatusID() == 1) {
-//                printTransferDeets(currentUser, transfer);
-//            }
-//        }
-//        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to approve or reject - otherwise press 0 to cancel.");
-//        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
-//        if(transferChoice !=null){
-//            approvalProcess(currentUser, transferChoice);
-//        }
-// WONT_COMPILE_END
-  }
+		// TODO Auto-generated method stub
+        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+       consoleService.pendingRequestHeader();
+
+        for(Transfer transfer: transfers) {
+            if (transfer.getTransferStatusID() == 1) {
+                printTransferDeets(currentUser, transfer);
+            }
+        }
+        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to approve or reject - otherwise press 0 to cancel.");
+        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+        if(transferChoice !=null){
+            approvalProcess(currentUser, transferChoice);
+        }
+
+	}
 
 	private void sendBucks() {
         Map<Long,PublicUserInfoDTO> users = accountService.getUsers(currentUser);
@@ -181,7 +177,7 @@ public class App {
                 consoleService.printOtherUserSelectionMenu(otherUsers.values());
 
                 long userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
-                if(userValidation(userSelection, users)) {
+                if(userValidation(userSelection, users, currentUser)) {
                     BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you sending?");
 
                     Account fromAccount = accountService.getAccountByUserId(currentUser,
@@ -218,15 +214,51 @@ public class App {
             }
         }
 
-	}
+    }
 
 
-    private boolean userValidation(long userSelection, Map<Long,PublicUserInfoDTO> users) {
-        if (!users.containsKey(userSelection)) {
-            consoleService.printMessage("Invalid Selection");
-            return false;
+    private boolean userValidation(long userSelection, Map<Long,PublicUserInfoDTO> users, AuthenticatedUser currentUser) {
+        if(userSelection !=0){
+            try{
+                boolean validUserId = false;
+                if(userSelection == currentUser.getUser().getId()){
+                    throw new InvalidUserSelectionException();
+                }
+                else if (users.containsKey(userSelection)){
+                    validUserId = true;
+                }
+                if(validUserId == false){
+                    throw new AccountNotFoundException();
+                }
+                return true;
+            } catch (InvalidUserSelectionException e) {
+                throw new RuntimeException(e);
+            } catch (AccountNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
-        return true;
+        return false;
+    }
+
+    private Transfer transferIdValidation(int transferIdChoice, Transfer[] transfers, AuthenticatedUser currentUser) {
+        Transfer userChoice = null;
+        if (transferIdChoice != 0) {
+            try {
+                boolean validID = false;
+                for (Transfer transfer : transfers) {
+                    if (transfer.getTransferID() == transferIdChoice) {
+                        validID = true;
+                        userChoice = transfer;
+                    } else if (!validID) {
+                        throw new InvalidTransferIdValidation();
+                    }
+                }
+
+            } catch(InvalidTransferIdValidation e){
+                System.out.println(e.getMessage());
+            }
+        }
+        return userChoice;
     }
 
     private void requestBucks() {
@@ -249,7 +281,7 @@ public class App {
                 consoleService.printOtherUserSelectionMenu(otherUsers.values());
                 // TODO Implement the rest (prompt for user and request $ from that user)
                 long userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
-                if (userValidation(userSelection, users)) {
+                if (userValidation(userSelection, users, currentUser)) {
                     BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you asking for?");
 
                     Account fromAccount = accountService.getAccountByUserId(currentUser, userSelection);
