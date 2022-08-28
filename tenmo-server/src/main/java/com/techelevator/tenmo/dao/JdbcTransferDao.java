@@ -2,8 +2,11 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -24,10 +27,44 @@ public class JdbcTransferDao implements TransferDao{
                 transfer.getTransferAmt()));
     }
 
-    @Override
     public List<Transfer> getTransferLog(int userID) { //not sure how to implement this yet, but needed for cases 5 & 6
-        return null;
+        int accountId = getAccountByUserID(userID);
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfers WHERE account_from = ? OR account_to = ? AND transfer_status_id <> 1";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
+
+        while(results.next()) {
+
+
+            int transferId = results.getInt("transfer_id");
+
+            int transferType = results.getInt("transfer_type_id");
+            int transferStatusId = results.getInt("transfer_status_id");
+
+
+            int accountFrom = results.getInt("account_from");
+            int accountTo = results.getInt("account_to");
+
+            String otherName = "";
+            String sendOrReceive = "Send";
+            if(accountId == accountFrom){
+                otherName = getUserNameByAccountID(accountTo);
+
+            } else {
+                otherName = getUserNameByAccountID(accountFrom);
+                sendOrReceive = "Recieve";
+            }
+
+            BigDecimal amount = results.getBigDecimal("amount");
+
+            Transfer newTransfer = new Transfer(accountFrom, transferType, transferStatusId, accountTo, transferId, amount);
+            transfers.add(newTransfer);
+
+        }
+
+        return transfers;
     }
+
 
     @Override
     public int getAccountByUserID(int userID) {

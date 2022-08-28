@@ -3,6 +3,7 @@ package com.techelevator.tenmo;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -101,15 +102,15 @@ public class App {
 
     private void viewTransferHistory() {
 		// TODO Auto-generated method stub
-        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+        Transfer[] transfers = transferService.getAllTransfers(currentUser);
         consoleService.printTransferDeetsShortHeader();
 
-        int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
-        for(Transfer transfer: transfers) {
-            consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
+      //  int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
+       // for(Transfer transfer: transfers) {
+         //   consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
 
 
-        }
+
 
         int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
         Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
@@ -140,7 +141,7 @@ public class App {
 
     private void viewPendingRequests() {
 		// TODO Auto-generated method stub
-        Transfer[] transfers = transferService.getTransferFromUserId(currentUser, Math.toIntExact(currentUser.getUser().getId()));
+        Transfer[] transfers = transferService.getUnresolvedTransfersViaUserId(currentUser);
        consoleService.pendingRequestHeader();
 
         for(Transfer transfer: transfers) {
@@ -218,26 +219,28 @@ public class App {
 
 
     private boolean userValidation(long userSelection, Map<Long,PublicUserInfoDTO> users, AuthenticatedUser currentUser) {
-        if(userSelection !=0){
-            try{
-                boolean validUserId = false;
-                if(userSelection == currentUser.getUser().getId()){
-                    throw new InvalidUserSelectionException();
-                }
-                else if (users.containsKey(userSelection)){
-                    validUserId = true;
-                }
-                if(validUserId == false){
-                    throw new AccountNotFoundException();
-                }
-                return true;
-            } catch (InvalidUserSelectionException e) {
-                throw new RuntimeException(e);
-            } catch (AccountNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return false;
+    //commenting out undefined exceptions, temporarily setting userValidation to always return "true" (Don T)
+
+//        if(userSelection !=0){
+//            try{
+//                boolean validUserId = false;
+//                if(userSelection == currentUser.getUser().getId()){
+//                    throw new InvalidUserSelectionException();
+//                }
+//                else if (users.containsKey(userSelection)){
+//                    validUserId = true;
+//                }
+//                if(validUserId == false){
+//                    throw new AccountNotFoundException();
+//                }
+//                return true;
+//            } catch (InvalidUserSelectionException e) {
+//                throw new RuntimeException(e);
+//            } catch (AccountNotFoundException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+        return true;
     }
 
     private Transfer transferIdValidation(int transferIdChoice, Transfer[] transfers, AuthenticatedUser currentUser) {
@@ -250,11 +253,11 @@ public class App {
                         validID = true;
                         userChoice = transfer;
                     } else if (!validID) {
-                        throw new InvalidTransferIdValidation();
+                        throw new Exception();  //InvalidTransferIdValidation();
                     }
                 }
 
-            } catch(InvalidTransferIdValidation e){
+            } catch(Exception e){ //InvalidTransferIdValidation e){
                 System.out.println(e.getMessage());
             }
         }

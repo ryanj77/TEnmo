@@ -95,7 +95,7 @@ public class TransferService {
 
     }
 
-    Transfer [] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
+    public Transfer [] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
         Transfer [] transfers = null;
         try{
             transfers = restTemplate.exchange(baseUrl + "/transfers/user/" + authenticatedUser.getUser().getId() + "/pending",
