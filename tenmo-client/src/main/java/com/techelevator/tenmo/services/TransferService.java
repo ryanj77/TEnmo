@@ -24,6 +24,7 @@ public class TransferService {
 
     private HttpEntity genEntity(AuthenticatedUser authenticatedUser){
         HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity entity = new HttpEntity(headers);
         return entity;
     }

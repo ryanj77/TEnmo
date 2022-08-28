@@ -32,11 +32,11 @@ public class JdbcTransferDao implements TransferDao{
 
 
         String sql = "select transfer_id, transfer_type_id, transfer_status_id, account_to, account_from, amount "+
-                "from transfer as t"+
-                "left join on account as a"+
-                "on t.account_from = a.account_id"+
-                "where a.account_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountID);
+                "from transfer as t "+
+//                "left join on account as a"+
+//                "on t.account_from = a.account_id"+
+                "where t.account_to = ? or t.account_from= ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, accountID, accountID);
 
         while(results.next()){
             Transfer transfer = mapRowToTransfer(results);

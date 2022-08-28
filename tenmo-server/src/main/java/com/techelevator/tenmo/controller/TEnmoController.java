@@ -62,6 +62,7 @@ public class TEnmoController {
         if (transfer.getTransferStatusID() == 2) {
             // TODO Actually perform the transfer (update the account records) because the transfer status is already approved
             // Should check the from account balance here on the server too and, if insufficient, fail the transfer by changing the status to rejected
+            
         }
     }
     @RequestMapping(path="gettransfers", method = RequestMethod.GET)
