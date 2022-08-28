@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferStatus;
+import com.techelevator.tenmo.model.TransferType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -101,6 +103,7 @@ public class JdbcTransferDao implements TransferDao{
         username = jdbcTemplate.queryForObject(sql, String.class, username);
         return username;
     }
+
     private Transfer mapRowToTransfer(SqlRowSet rs) {
         Transfer transfer = new Transfer();
         transfer.setTransferID(rs.getInt("transfer_id"));
@@ -112,4 +115,29 @@ public class JdbcTransferDao implements TransferDao{
         return transfer;
     }
 
+    @Override
+    public TransferStatus getTransferStatus(String status) {
+        String sql = "select transfer_status_id, transfer_status_desc from transfer_status where transfer_status_desc = ?;";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, status);
+        TransferStatus transferStatus = null;
+        if (rs.next()) {
+            transferStatus = new TransferStatus();
+            transferStatus.setTransferStatusId(rs.getInt("transfer_status_id"));
+            transferStatus.setTransferStatusDesc(rs.getString("transfer_status_desc"));
+        }
+        return transferStatus;
+    }
+
+    @Override
+    public TransferType getTransferType(String type) {
+        String sql = "select transfer_type_id, transfer_type_desc from transfer_type where transfer_type_desc = ?;";
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, type);
+        TransferType transferType = null;
+        if (rs.next()) {
+            transferType = new TransferType();
+            transferType.setTransferTypeId(rs.getInt("transfer_type_id"));
+            transferType.setTransferTypeDescription(rs.getString("transfer_type_desc"));
+        }
+        return transferType;
+    }
 }

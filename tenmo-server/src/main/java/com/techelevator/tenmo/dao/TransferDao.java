@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferStatus;
+import com.techelevator.tenmo.model.TransferType;
 
 import java.util.List;
 
@@ -17,4 +19,7 @@ public interface TransferDao {
 
     public String getUserNameByAccountID(int accountID);
 
+    TransferStatus getTransferStatus(String status);
+
+    TransferType getTransferType(String type);
 }

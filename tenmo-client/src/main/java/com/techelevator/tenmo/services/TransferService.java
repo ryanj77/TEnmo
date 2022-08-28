@@ -1,8 +1,6 @@
 package com.techelevator.tenmo.services;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.PublicUserInfoDTO;
-import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +20,7 @@ public class TransferService {
         this.baseUrl = url;
     }
 
-    private HttpEntity genEntity(AuthenticatedUser authenticatedUser){
+    private HttpEntity genEntity(AuthenticatedUser authenticatedUser) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity entity = new HttpEntity(headers);
@@ -67,22 +65,22 @@ public class TransferService {
 
     public Transfer getTransferFromTransferId(AuthenticatedUser authenticatedUser, int id) {
         Transfer transfer = null;
-        try{
+        try {
             transfer = restTemplate.exchange(baseUrl + "transfers/" + id,
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer.class).getBody();
         } catch (RestClientResponseException e) {
-        System.out.println("Request failed. Code:" + e.getRawStatusCode());
-    } catch (ResourceAccessException e) {
-        System.out.println("System is unavailable at this time. Please try again later.");
-    }
+            System.out.println("Request failed. Code:" + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("System is unavailable at this time. Please try again later.");
+        }
         return transfer;
     }
 
-    public Transfer [] getAllTransfers(AuthenticatedUser authenticatedUser) {
-        Transfer[] transfers = new Transfer [0];
-        try{
+    public Transfer[] getAllTransfers(AuthenticatedUser authenticatedUser) {
+        Transfer[] transfers = new Transfer[0];
+        try {
             transfers = restTemplate.exchange(baseUrl + "gettransfers",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
@@ -96,9 +94,9 @@ public class TransferService {
 
     }
 
-    public Transfer [] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
-        Transfer [] transfers = null;
-        try{
+    public Transfer[] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
+        Transfer[] transfers = null;
+        try {
             transfers = restTemplate.exchange(baseUrl + "transfers/user/" + authenticatedUser.getUser().getId() + "/pending",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
@@ -109,8 +107,9 @@ public class TransferService {
             System.out.println("System is unavailable at this time. Please try again later.");
         }
         return transfers;
-        }
-    public void updateTransfer(AuthenticatedUser authenticatedUser, Transfer transfer){
+    }
+
+    public void updateTransfer(AuthenticatedUser authenticatedUser, Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(authenticatedUser.getToken());
@@ -131,35 +130,87 @@ public class TransferService {
         }
     }
 
-    public String determineTransferType(int typeID){
+    public String determineTransferType(int typeID) {
         String message = "";
-        if(typeID == 1){
+        if (typeID == 1) {
             message = "Funds Sent";
-        }
-        else if(typeID == 2){
+        } else if (typeID == 2) {
             message = "Funds Requested";
-        }
-        else {
+        } else {
             message = "Error determining request type";
         }
         return message;
     }
 
-    public String determineTransferStatus(int typeID){
+    public String determineTransferStatus(int typeID) {
         String message = "";
-        if(typeID == 1){
+        if (typeID == 1) {
             message = "Approval Pending";
-        }
-        else if(typeID == 2){
+        } else if (typeID == 2) {
             message = "Transfer Approved";
-        }
-        else if(typeID == 3){
+        } else if (typeID == 3) {
             message = "Transfer Rejected";
-        }
-        else {
+        } else {
             message = "Error in determining transfer status.";
         }
         return message;
     }
 
+    public TransferStatus getTransferStatusById(AuthenticatedUser authenticatedUser, int transferStatusId) {
+        TransferStatus transferStatus = null;
+        try {
+            String url = baseUrl + "transferstatus/" + transferStatusId;
+            transferStatus = restTemplate.exchange(url, HttpMethod.GET, genEntity(authenticatedUser), TransferStatus.class).getBody();
+        } catch (RestClientResponseException e) {
+            System.out.println("Could not complete request. Code: " + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Could not complete request due to server network issue. Please try again.");
+        }
+
+        return transferStatus;
+    }
+
+    public TransferType getTransferTypeFromId(AuthenticatedUser authenticatedUser, int transferTypeId) {
+        TransferType transferType = null;
+
+        try {
+            String url = baseUrl + "transfertype/" + transferTypeId;
+            transferType = restTemplate.exchange(url, HttpMethod.GET, genEntity(authenticatedUser), TransferType.class).getBody();
+        } catch (RestClientResponseException e) {
+            System.out.println("Could not complete request. Code: " + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Could not complete request due to server network issue. Please try again.");
+        }
+
+        return transferType;
+    }
+
+    public TransferStatus getTransferStatus(AuthenticatedUser currentUser, String status) {
+        TransferStatus transferStatus = null;
+        try {
+            String url = baseUrl + "gettransferstatusid/" + status;
+            transferStatus = restTemplate.exchange(url, HttpMethod.GET, genEntity(currentUser), TransferStatus.class).getBody();
+        } catch (RestClientResponseException e) {
+            System.out.println("Could not complete request. Code: " + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Could not complete request due to server network issue. Please try again.");
+        }
+
+        return transferStatus;
+    }
+
+    public TransferType getTransferType(AuthenticatedUser currentUser, String type) {
+        TransferType transferType = null;
+
+        try {
+            String url = baseUrl + "gettransfertypeid/" + type;
+            transferType = restTemplate.exchange(url, HttpMethod.GET, genEntity(currentUser), TransferType.class).getBody();
+        } catch (RestClientResponseException e) {
+            System.out.println("Could not complete request. Code: " + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("Could not complete request due to server network issue. Please try again.");
+        }
+
+        return transferType;
+    }
 }

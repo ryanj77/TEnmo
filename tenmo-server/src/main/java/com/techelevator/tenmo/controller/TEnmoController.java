@@ -4,9 +4,7 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.AccountNotFoundException;
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.PublicUserInfoDTO;
-import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +54,7 @@ public class TEnmoController {
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
-    public void createTransfer(@RequestBody Transfer transfer) {
+    public Transfer createTransfer(@RequestBody Transfer transfer) {
         transferDao.create(transfer);
 
         if (transfer.getTransferStatusID() == 2) {
@@ -64,6 +62,7 @@ public class TEnmoController {
             // Should check the from account balance here on the server too and, if insufficient, fail the transfer by changing the status to rejected
             
         }
+        return transfer;
     }
     @RequestMapping(path="gettransfers", method = RequestMethod.GET)
     public List<Transfer> getTransferLog(Principal principal) throws AccountNotFoundException {
@@ -71,4 +70,13 @@ public class TEnmoController {
         return transferDao.getTransferLog(account.getAccountId());
     }
 
+    @RequestMapping(path="gettransferstatusid/{status}", method = RequestMethod.GET)
+    TransferStatus getTransferStatusId(@PathVariable String status) {
+        return transferDao.getTransferStatus(status);
+    }
+
+    @RequestMapping(path="gettransfertypeid/{type}", method = RequestMethod.GET)
+    TransferType getTransferTypeId(@PathVariable String type) {
+        return transferDao.getTransferType(type);
+    }
 }

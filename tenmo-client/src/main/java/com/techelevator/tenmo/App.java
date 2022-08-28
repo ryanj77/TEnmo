@@ -17,6 +17,7 @@ public class App {
     private final AccountService accountService = new AccountService(API_TENMO_BASE_URL);
 
     private TransferService transferService = new TransferService(API_TENMO_BASE_URL);
+
     private AuthenticatedUser currentUser;
 
     public static void main(String[] args) {
@@ -181,6 +182,7 @@ public class App {
                 if(userValidation(userSelection, users, currentUser)) {
                     BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you sending?");
 
+/*
                     Account fromAccount = accountService.getAccountByUserId(currentUser,
                             currentUser.getUser().getId());
                     if (fromAccount == null) {
@@ -211,6 +213,8 @@ public class App {
 
                 // TODO Have server respond to the transfer creation by actually performing the transfer because the transfer status is already approved
                   transferService.createTransfer(currentUser, t1);
+ */
+                    createTransfer((int)userSelection, chooseAmount, "Send", "Approved");
                 }
             }
         }
@@ -340,4 +344,32 @@ public class App {
 
 
         }
+
+    private Transfer createTransfer (int accountChoiceUserId, BigDecimal amount, /*String amountString,*/ String transferType, String status){
+
+        int transferTypeId = transferService.getTransferType(currentUser, transferType).getTransferTypeId();
+        int transferStatusId = transferService.getTransferStatus(currentUser, status).getTransferStatusId();
+        int accountToId;
+        int accountFromId;
+        if(transferType.equals("Send")) {
+            accountToId = accountService.getAccountByUserId(currentUser, accountChoiceUserId).getAccountId();
+            accountFromId = accountService.getAccountByUserId(currentUser, currentUser.getUser().getId()).getAccountId();
+        } else {
+            accountToId = accountService.getAccountByUserId(currentUser, currentUser.getUser().getId()).getAccountId();
+            accountFromId = accountService.getAccountByUserId(currentUser, accountChoiceUserId).getAccountId();
+        }
+
+//        BigDecimal amount = new BigDecimal(amountString);
+
+        Transfer transfer = new Transfer();
+        transfer.setFromAccountID(accountFromId);
+        transfer.setToAccountID(accountToId);
+        transfer.setTransferAmt(amount);
+        transfer.setTransferStatusID(transferStatusId);
+        transfer.setTransferTypeID(transferTypeId);
+
+        transferService.createTransfer(currentUser, transfer);
+
+        return transfer;
+    }
 }
