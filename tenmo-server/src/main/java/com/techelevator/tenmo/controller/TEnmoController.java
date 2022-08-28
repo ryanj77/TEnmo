@@ -64,4 +64,10 @@ public class TEnmoController {
             // Should check the from account balance here on the server too and, if insufficient, fail the transfer by changing the status to rejected
         }
     }
+    @RequestMapping(path="gettransfers", method = RequestMethod.GET)
+    public List<Transfer> getTransferLog(Principal principal) throws AccountNotFoundException {
+        Account account = accountDao.findByUsername(principal.getName());
+        return transferDao.getTransferLog(account.getAccountId());
+    }
+
 }

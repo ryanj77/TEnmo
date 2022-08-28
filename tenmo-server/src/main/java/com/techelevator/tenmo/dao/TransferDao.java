@@ -9,7 +9,7 @@ public interface TransferDao {
 
     public void create(Transfer transfer);
 
-    List<Transfer> getTransferLog(int userID);
+    List<Transfer> getTransferLog(int accountID);
 
     public int getAccountByUserID(int userID);
 

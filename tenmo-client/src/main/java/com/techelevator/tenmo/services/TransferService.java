@@ -34,7 +34,7 @@ public class TransferService {
         headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
 
-        String url = baseUrl + "/transfer";
+        String url = baseUrl + "transfer";
 
         try {
             restTemplate.exchange(url, HttpMethod.POST, entity, Transfer.class);
@@ -52,7 +52,7 @@ public class TransferService {
     public Transfer[] getTransferFromUserId(AuthenticatedUser authenticatedUser, int userId) {
         Transfer[] transfer = null;
         try {
-            transfer = restTemplate.exchange(baseUrl + "/transfers/user/" + userId,
+            transfer = restTemplate.exchange(baseUrl + "transfers/user/" + userId,
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer[].class).getBody();
@@ -67,7 +67,7 @@ public class TransferService {
     public Transfer getTransferFromTransferId(AuthenticatedUser authenticatedUser, int id) {
         Transfer transfer = null;
         try{
-            transfer = restTemplate.exchange(baseUrl + "/transfers/" + id,
+            transfer = restTemplate.exchange(baseUrl + "transfers/" + id,
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer.class).getBody();
@@ -82,7 +82,7 @@ public class TransferService {
     public Transfer [] getAllTransfers(AuthenticatedUser authenticatedUser) {
         Transfer[] transfers = new Transfer [0];
         try{
-            transfers = restTemplate.exchange(baseUrl + "/transfers",
+            transfers = restTemplate.exchange(baseUrl + "gettransfers",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer[].class).getBody();
@@ -98,7 +98,7 @@ public class TransferService {
     public Transfer [] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
         Transfer [] transfers = null;
         try{
-            transfers = restTemplate.exchange(baseUrl + "/transfers/user/" + authenticatedUser.getUser().getId() + "/pending",
+            transfers = restTemplate.exchange(baseUrl + "transfers/user/" + authenticatedUser.getUser().getId() + "/pending",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer[].class).getBody();
@@ -115,7 +115,7 @@ public class TransferService {
         headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
 
-        String url = baseUrl + "/transfers/" + transfer.getTransferID();
+        String url = baseUrl + "transfers/" + transfer.getTransferID();
 
         try {
             restTemplate.exchange(url, HttpMethod.POST, entity, Transfer.class);

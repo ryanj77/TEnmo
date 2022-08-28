@@ -101,23 +101,23 @@ public class App {
     }
 
     private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+        // TODO Auto-generated method stub
         Transfer[] transfers = transferService.getAllTransfers(currentUser);
-        consoleService.printTransferDeetsShortHeader();
+        if (transfers == null) {
+            System.out.println("No transfers to display.");
+        } else {
+                consoleService.printTransferDeetsShortHeader();
 
-      //  int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
-       // for(Transfer transfer: transfers) {
-         //   consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
+            //  int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
+            // for(Transfer transfer: transfers) {
+            //   consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
 
-
-
-
-        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
-        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
-        if(transferChoice !=null){
-            printTransferDeets(currentUser, transferChoice);
+            int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
+            Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+            if (transferChoice != null) {
+                printTransferDeets(currentUser, transferChoice);
+            }
         }
-
     }
 
     private void printTransferDeets(AuthenticatedUser currentUser, Transfer transferChoice) {

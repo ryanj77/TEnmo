@@ -18,13 +18,14 @@ public class UserService {
     private static HttpEntity genEntity(AuthenticatedUser authenticatedUser){
         HttpHeaders headers = new HttpHeaders();
         HttpEntity entity = new HttpEntity(headers);
+        headers.setBearerAuth(authenticatedUser.getToken());
         return entity;
     }
 
     public User[] getAllUsers(AuthenticatedUser authenticatedUser) {
         User[] users = null;
         try{
-            users = restTemplate.exchange(BASEURL + "/transfers",
+            users = restTemplate.exchange(BASEURL + "transfers",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     User[].class).getBody();
@@ -39,7 +40,7 @@ public class UserService {
     public static User getUserViaUserId(AuthenticatedUser authenticatedUser, int id) {
         User user = null;
         try{
-            user = restTemplate.exchange(BASEURL + "/transfers",
+            user = restTemplate.exchange(BASEURL + "transfers",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     User.class).getBody();
