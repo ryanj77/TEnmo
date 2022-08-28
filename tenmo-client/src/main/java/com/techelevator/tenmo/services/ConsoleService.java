@@ -19,7 +19,6 @@ public class ConsoleService {
 
     // TODO Improve this message
     private static final String NOBODY_TO_TRANSFER_MONEY_WITH_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
-    private static final String NOBODY_TO_REQUEST_MONEY_FROM_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
 
     private final Scanner scanner = new Scanner(System.in);
 
