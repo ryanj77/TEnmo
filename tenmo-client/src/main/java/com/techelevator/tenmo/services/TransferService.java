@@ -34,7 +34,7 @@ public class TransferService {
         headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
 
-        String url = baseUrl + "/transfers/" + transfer.getTransferID();
+        String url = baseUrl + "/transfer";
 
         try {
             restTemplate.exchange(url, HttpMethod.POST, entity, Transfer.class);

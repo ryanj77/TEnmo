@@ -11,6 +11,8 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import com.techelevator.tenmo.model.Account;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AccountService {
 
@@ -34,11 +36,15 @@ public class AccountService {
         return balance;
     }
 
-    public PublicUserInfoDTO[] getUsers(AuthenticatedUser user) {
-        PublicUserInfoDTO[] userInfos = null;
+    public Map<Long,PublicUserInfoDTO> getUsers(AuthenticatedUser user) {
+        Map<Long,PublicUserInfoDTO> userInfos = null;
         try {
-            userInfos = restTemplate.exchange(baseUrl + "getusers", HttpMethod.GET, makeAuthEntity(user),
+            PublicUserInfoDTO[] userInfoArray = restTemplate.exchange(baseUrl + "getusers", HttpMethod.GET, makeAuthEntity(user),
                     PublicUserInfoDTO[].class).getBody();
+            userInfos = new HashMap<>();
+            for (PublicUserInfoDTO userInfo : userInfoArray) {
+                userInfos.put(userInfo.getId(), userInfo);
+            }
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
@@ -53,7 +59,7 @@ public class AccountService {
         return new HttpEntity<>(headers);
     }
 
-    public Account getAccountByUserId(AuthenticatedUser authenticatedUser, int userId) {
+    public Account getAccountByUserId(AuthenticatedUser authenticatedUser, long userId) {
         Account account = null;
         try{
             account = restTemplate.exchange(baseUrl + "account/user/" + userId,

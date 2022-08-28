@@ -1,14 +1,11 @@
 package com.techelevator.tenmo.services;
 
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.PublicUserInfoDTO;
-import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -21,7 +18,8 @@ public class ConsoleService {
     private static final String LIST_FOOTER = "---------";
 
     // TODO Improve this message
-    public static final String NOBODY_TO_SEND_MONEY_TO_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
+    private static final String NOBODY_TO_TRANSFER_MONEY_WITH_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
+    private static final String NOBODY_TO_REQUEST_MONEY_FROM_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -115,7 +113,7 @@ public class ConsoleService {
         return String.format("%-" + n + "s", s);
     }
 
-    public void printMoneySendMenu(List<PublicUserInfoDTO> otherUsers) {
+    public void printOtherUserSelectionMenu(Iterable<PublicUserInfoDTO> otherUsers) {
         System.out.println(LIST_HEADER_SEPARATOR_LINE);
         System.out.println(USER_LIST_TITLE);
         System.out.println(padRight(USER_LIST_USER_ID_COLUMN_NAME, USER_LIST_USER_ID_COLUMN_WIDTH) +
@@ -128,8 +126,8 @@ public class ConsoleService {
         System.out.println();
     }
 
-    public void printNobodyToSendMoneyToMessage() {
-        System.out.println(NOBODY_TO_SEND_MONEY_TO_MESSAGE);
+    public void printNobodyToTransferMoneyWithMessage() {
+        System.out.println(NOBODY_TO_TRANSFER_MONEY_WITH_MESSAGE);
     }
 
     public void printTransferDeets(int id, String from, String to, String type, String status, BigDecimal amount) {

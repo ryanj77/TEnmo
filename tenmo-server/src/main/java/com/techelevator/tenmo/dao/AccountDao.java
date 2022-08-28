@@ -5,5 +5,6 @@ import com.techelevator.tenmo.model.Account;
 
 // blueprint for interacting with "account" table
 public interface AccountDao {
-    Account findByUsername(String username) throws AccountNotFoundException;
+    Account findByUsername(String username);
+    Account findByUserId(long id);
 }

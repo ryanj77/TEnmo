@@ -17,16 +17,22 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public Account findByUsername(String username) throws AccountNotFoundException {
+    public Account findByUsername(String username) {
         String sql = "SELECT account_id, account.user_id as user_id, balance " +
                 "FROM account " +
                 "JOIN tenmo_user on tenmo_user.user_id = account.user_id " +
                 "WHERE tenmo_user.username=?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-        if (!rowSet.next()) {
-            throw new AccountNotFoundException(username);
-        }
-        return mapRowToAccount(rowSet);
+        return rowSet.next() ? mapRowToAccount(rowSet) : null;
+    }
+
+    @Override
+    public Account findByUserId(long id) {
+        String sql = "SELECT account_id, user_id, balance " +
+                "FROM account " +
+                "WHERE user_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, id);
+        return rowSet.next() ? mapRowToAccount(rowSet) : null;
     }
 
     private Account mapRowToAccount(SqlRowSet rowSet) {
