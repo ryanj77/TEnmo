@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.AccountNotFoundException;
 import com.techelevator.tenmo.exception.InsufficientFundsException;
+import com.techelevator.tenmo.exception.SelfPaymentException;
 import com.techelevator.tenmo.model.Account;
 
 import java.math.BigDecimal;
@@ -12,6 +13,6 @@ public interface AccountDao {
     Account findByUserId(int id);
     Account findUsernameByAccountID(int accountID);
     Account findByAccountId(int id);
-    void transferMoney(int fromAccountId, int toAccountId, BigDecimal amount) throws InsufficientFundsException;
+    void transferMoney(int fromAccountId, int toAccountId, BigDecimal amount) throws InsufficientFundsException, SelfPaymentException;
 
 }

@@ -19,6 +19,14 @@ public class JdbcTransferDao implements TransferDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public Transfer findByTransferId(int id) {
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_to, account_from, amount " +
+                "FROM transfer " +
+                "WHERE transfer_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, id);
+        return rowSet.next() ? mapRowToTransfer(rowSet) : null;
+    }
 
     @Override
     public void create(Transfer transfer) {

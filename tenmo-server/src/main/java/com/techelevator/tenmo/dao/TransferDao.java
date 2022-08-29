@@ -9,6 +9,8 @@ import java.util.List;
 public interface TransferDao {
     //blueprint for interacting with "transfer" table
 
+    Transfer findByTransferId(int id);
+
     public void create(Transfer transfer);
 
     List<Transfer> getTransferLog(int accountID);

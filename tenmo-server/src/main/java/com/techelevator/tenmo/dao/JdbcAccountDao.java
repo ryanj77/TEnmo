@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.AccountNotFoundException;
 import com.techelevator.tenmo.exception.InsufficientFundsException;
+import com.techelevator.tenmo.exception.SelfPaymentException;
 import com.techelevator.tenmo.model.Account;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -48,7 +49,10 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
-    public void transferMoney(int fromAccountId, int toAccountId, BigDecimal amount) throws InsufficientFundsException {
+    public void transferMoney(int fromAccountId, int toAccountId, BigDecimal amount) throws InsufficientFundsException, SelfPaymentException {
+        if (fromAccountId == toAccountId) {
+            throw new SelfPaymentException();
+        }
         Account fromAccount = findByAccountId(fromAccountId);
         Account toAccount = findByAccountId(toAccountId);
         if (amount.compareTo(fromAccount.getBalance()) > 0) {

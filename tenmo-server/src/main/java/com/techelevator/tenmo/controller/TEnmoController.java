@@ -5,11 +5,13 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.AccountNotFoundException;
 import com.techelevator.tenmo.exception.InsufficientFundsException;
+import com.techelevator.tenmo.exception.SelfPaymentException;
 import com.techelevator.tenmo.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
@@ -55,13 +57,13 @@ public class TEnmoController {
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
-    public Transfer createTransfer(@RequestBody Transfer transfer) {
+    public Transfer createTransfer(@Valid @RequestBody Transfer transfer) {
         transferDao.create(transfer);
         if (transfer.getTransferTypeID() == TransferType.TYPE_ID_SEND
                 && transfer.getTransferStatusID() == TransferStatus.STATUS_ID_APPROVED) {
             try {
                 accountDao.transferMoney(transfer.getFromAccountID(), transfer.getToAccountID(), transfer.getTransferAmt());
-            } catch (InsufficientFundsException e) {
+            } catch (InsufficientFundsException | SelfPaymentException e) {
                 transfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
                 try {
                     transferDao.update(transfer);
@@ -74,6 +76,34 @@ public class TEnmoController {
         }
         return transfer;
     }
+
+    @RequestMapping(path = "transfer/{id}", method = RequestMethod.GET)
+    public Transfer getTransfer(@PathVariable int id) {
+        return transferDao.findByTransferId(id);
+    }
+
+    @RequestMapping(path = "transfer/{id}", method = RequestMethod.PUT)
+    public Transfer updateTransfer(@Valid @RequestBody Transfer updatedTransfer, @PathVariable int id) {
+        Transfer existingTransfer = transferDao.findByTransferId(updatedTransfer.getTransferID());
+        if (existingTransfer.getTransferStatusID() != TransferStatus.STATUS_ID_APPROVED
+            && updatedTransfer.getTransferStatusID() == TransferStatus.STATUS_ID_APPROVED) {
+            try {
+                accountDao.transferMoney(updatedTransfer.getFromAccountID(), updatedTransfer.getToAccountID(), updatedTransfer.getTransferAmt());
+                transferDao.update(updatedTransfer);
+            } catch (InsufficientFundsException | SelfPaymentException e) {
+                updatedTransfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
+                try {
+                    transferDao.update(updatedTransfer);
+                }
+                catch (Exception e2) {
+                    throw new RuntimeException(e2);
+                }
+                throw new RuntimeException(e);
+            }
+        }
+        return updatedTransfer;
+    }
+
     @RequestMapping(path="gettransfers", method = RequestMethod.GET)
     public List<Transfer> getTransferLog(Principal principal) throws AccountNotFoundException {
         Account account = accountDao.findByUsername(principal.getName());
