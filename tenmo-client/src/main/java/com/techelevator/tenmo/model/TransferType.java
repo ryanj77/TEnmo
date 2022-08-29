@@ -4,6 +4,9 @@ public class TransferType {
     private int transferTypeId;
     private String transferTypeDescription;
 
+    public final static int TYPE_ID_REQUEST = 1;
+    public final static int TYPE_ID_SEND = 2;
+
     public int getTransferTypeId() {
         return transferTypeId;
     }

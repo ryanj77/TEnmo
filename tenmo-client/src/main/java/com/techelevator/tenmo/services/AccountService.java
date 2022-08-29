@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.PublicUserInfoDTO;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -59,7 +60,7 @@ public class AccountService {
         return new HttpEntity<>(headers);
     }
 
-    public Account getAccountByUserId(AuthenticatedUser authenticatedUser, long userId) {
+    public Account getAccountByUserId(AuthenticatedUser authenticatedUser, int userId) {
         Account account = null;
         try{
             account = restTemplate.exchange(baseUrl + "account/user/" + userId,
@@ -73,5 +74,21 @@ public class AccountService {
         }
         return account;
     }
+
+//    public Account findUsernameByAccountID(AuthenticatedUser authenticatedUser, int accountID){
+//        Account account = null;
+//
+//        try{
+//            account= restTemplate.exchange(baseUrl + "account/" + accountID,
+//                    HttpMethod.GET,
+//                    makeAuthEntity(authenticatedUser),
+//                    Account.class).getBody();
+//        }catch(RestClientResponseException e){
+//            System.out.println("Could not complete request. Code:" + e.getRawStatusCode());
+//        }catch(ResourceAccessException e) {
+//            System.out.println("Request has failed. Please try again later.");
+//        }
+//        return account;
+//    }
 
 }

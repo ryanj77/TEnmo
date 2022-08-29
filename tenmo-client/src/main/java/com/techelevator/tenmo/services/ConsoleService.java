@@ -112,6 +112,10 @@ public class ConsoleService {
         return String.format("%-" + n + "s", s);
     }
 
+    public static String padLeft(String s, int n) {
+        return String.format("%" + n + "s", s);
+    }
+
     public void printOtherUserSelectionMenu(Iterable<PublicUserInfoDTO> otherUsers) {
         System.out.println(LIST_HEADER_SEPARATOR_LINE);
         System.out.println(USER_LIST_TITLE);
@@ -143,10 +147,10 @@ public class ConsoleService {
 
     public void printTransferDeetsShortHeader() {
 
-        System.out.println("-----------------------");
+        System.out.println("-------------------------------------------");
         System.out.println("Transfers");
-        System.out.println("ID      From/To        Amount");
-        System.out.println("-----------------------");
+        System.out.println("ID          From/To                 Amount");
+        System.out.println("-------------------------------------------");
 
     }
 

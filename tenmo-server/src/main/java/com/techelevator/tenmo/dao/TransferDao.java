@@ -22,4 +22,5 @@ public interface TransferDao {
     TransferStatus getTransferStatus(String status);
 
     TransferType getTransferType(String type);
+    void update(Transfer transfer);
 }

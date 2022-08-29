@@ -97,6 +97,16 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
+    public void update(Transfer transfer) {
+        String sql = "UPDATE transfer " +
+                "SET transfer_type_id = ?, transfer_status_id = ?, account_from = ?, account_to = ?, amount = ? " +
+                "WHERE transfer_id = ?";
+        jdbcTemplate.update(sql, transfer.getTransferTypeID(), transfer.getTransferStatusID(),
+                transfer.getFromAccountID(),  transfer.getToAccountID(),  transfer.getTransferAmt(),
+                transfer.getTransferID());
+    }
+
+    @Override
     public String getUserNameByAccountID(int accountID) {
         String sql = "select username from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id where account_id = ?;";
         String username = "";

@@ -94,9 +94,29 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+    @Override
+    public User findUsernameByAccountID(int accountID){
+        String sql = "select username, tu.user_id as user_id, password_hash " +
+                "from tenmo_user as tu "+
+                "inner join account as a "+
+                "on a.user_id = tu.user_id "+
+                "where a.account_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountID);
+        return rowSet.next() ? mapRowToUser(rowSet) : null;
+    }
+
+    @Override
+    public User getUserViaUserId(int id) {
+        String sql = "select  user_id, username, password_hash " +
+                "from tenmo_user "+
+                "where user_id= ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, id);
+        return rowSet.next() ? mapRowToUser(rowSet) : null;
+    }
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
-        user.setId(rs.getLong("user_id"));
+        user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
         user.setActivated(true);
@@ -106,7 +126,7 @@ public class JdbcUserDao implements UserDao {
 
     private PublicUserInfoDTO mapRowToPublicUserInfo(SqlRowSet rs) {
         PublicUserInfoDTO userInfo = new PublicUserInfoDTO();
-        userInfo.setId(rs.getLong("user_id"));
+        userInfo.setId(rs.getInt("user_id"));
         userInfo.setUsername(rs.getString("username"));
         return userInfo;
     }

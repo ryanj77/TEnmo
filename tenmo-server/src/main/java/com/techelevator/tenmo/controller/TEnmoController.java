@@ -4,6 +4,7 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.AccountNotFoundException;
+import com.techelevator.tenmo.exception.InsufficientFundsException;
 import com.techelevator.tenmo.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,7 +45,7 @@ public class TEnmoController {
     }
 
     @RequestMapping(path = "account/user/{id}", method = RequestMethod.GET)
-    public Account getAccountByUserId(@PathVariable long id) throws AccountNotFoundException {
+    public Account getAccountByUserId(@PathVariable int id) throws AccountNotFoundException {
         Account account = accountDao.findByUserId(id);
         if (account == null) {
             throw new AccountNotFoundException("Account for user with id=" + id + " was not found.");
@@ -56,11 +57,20 @@ public class TEnmoController {
     @RequestMapping(path = "transfer", method = RequestMethod.POST)
     public Transfer createTransfer(@RequestBody Transfer transfer) {
         transferDao.create(transfer);
-
-        if (transfer.getTransferStatusID() == 2) {
-            // TODO Actually perform the transfer (update the account records) because the transfer status is already approved
-            // Should check the from account balance here on the server too and, if insufficient, fail the transfer by changing the status to rejected
-            
+        if (transfer.getTransferTypeID() == TransferType.TYPE_ID_SEND
+                && transfer.getTransferStatusID() == TransferStatus.STATUS_ID_APPROVED) {
+            try {
+                accountDao.transferMoney(transfer.getFromAccountID(), transfer.getToAccountID(), transfer.getTransferAmt());
+            } catch (InsufficientFundsException e) {
+                transfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
+                try {
+                    transferDao.update(transfer);
+                }
+                catch (Exception e2) {
+                    throw new RuntimeException(e2);
+                }
+                throw new RuntimeException(e);
+            }
         }
         return transfer;
     }
@@ -78,5 +88,14 @@ public class TEnmoController {
     @RequestMapping(path="gettransfertypeid/{type}", method = RequestMethod.GET)
     TransferType getTransferTypeId(@PathVariable String type) {
         return transferDao.getTransferType(type);
+    }
+
+    @RequestMapping(path="userbyaccountid/{accountID}", method = RequestMethod.GET)
+    User findUsernameByAccountID(@PathVariable int accountID) {
+        return userDao.findUsernameByAccountID(accountID);
+    }
+    @RequestMapping(path="user/{id}", method = RequestMethod.GET)
+    User getUserViaUserId(@PathVariable int id) {
+        return userDao.getUserViaUserId(id);
     }
 }

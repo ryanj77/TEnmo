@@ -1,6 +1,10 @@
 package com.techelevator.tenmo.model;
 
 public class TransferType {
+
+    public final static int TYPE_ID_REQUEST = 1;
+    public final static int TYPE_ID_SEND = 2;
+
     private int transferTypeId;
     private String transferTypeDescription;
 

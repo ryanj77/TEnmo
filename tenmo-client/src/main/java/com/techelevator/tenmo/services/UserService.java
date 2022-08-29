@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class UserService {
     private static RestTemplate restTemplate;
-    private static final String BASEURL = "http://localhost:8080/";
+    private static final String BASEURL = "http://localhost:8080/tenmo/";
 
     public UserService(){
         this.restTemplate = new RestTemplate();
@@ -17,15 +17,16 @@ public class UserService {
 
     private static HttpEntity genEntity(AuthenticatedUser authenticatedUser){
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity entity = new HttpEntity(headers);
+
         headers.setBearerAuth(authenticatedUser.getToken());
+        HttpEntity entity = new HttpEntity(headers);
         return entity;
     }
 
     public User[] getAllUsers(AuthenticatedUser authenticatedUser) {
         User[] users = null;
         try{
-            users = restTemplate.exchange(BASEURL + "transfers",
+            users = restTemplate.exchange(BASEURL + "users",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     User[].class).getBody();
@@ -40,7 +41,7 @@ public class UserService {
     public static User getUserViaUserId(AuthenticatedUser authenticatedUser, int id) {
         User user = null;
         try{
-            user = restTemplate.exchange(BASEURL + "transfers",
+            user = restTemplate.exchange(BASEURL + "user/"+id,
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     User.class).getBody();
@@ -51,5 +52,21 @@ public class UserService {
         }
         return user;
     }
+
+    public User findUsernameByAccountID(AuthenticatedUser authenticatedUser, int accountID) {
+        User user = null;
+        try{
+            user = restTemplate.exchange(BASEURL + "userbyaccountid/" +accountID,
+                    HttpMethod.GET,
+                    genEntity(authenticatedUser),
+                    User.class).getBody();
+        } catch (RestClientResponseException e) {
+            System.out.println("Request failed. Code:" + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("System is unavailable at this time. Please try again later.");
+        }
+        return user;
+    }
+
 
 }
