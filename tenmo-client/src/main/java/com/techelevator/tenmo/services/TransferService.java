@@ -40,7 +40,7 @@ public class TransferService {
                     // This message matches up with message received in the HTTP response.
                     // See line 6 of InsufficientFundsException.java on server side.
                     "Funds unavailable"
-                    //The following message does not does make it to the HTTP response.
+                    // The following message does not make it into the HTTP response.
 //                    "Your needs exceed your resources. Please adjust your request."*/
             )) {
                 System.out.println("Transaction cannot be completed - insufficient funds available.");
