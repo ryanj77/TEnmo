@@ -229,6 +229,7 @@ public class App {
             }
             if (otherUsers.isEmpty()) {
                 consoleService.printNobodyToTransferMoneyWithMessage();
+                Sounds.playSound("TPIRloss.wav");
             } else {
                 consoleService.printOtherUserSelectionMenu(otherUsers.values());
                 long userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
