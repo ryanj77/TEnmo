@@ -307,13 +307,13 @@ public class App {
         int choice = consoleService.promptForInt("Please choose an option: ");
         if (choice == 1) {
             //int transferStatusID = transferService.getTransferStatus(currentUser, "Approved").getTransferStatusID();
-            pendingTransfer.setTransferStatusID(choice);
-            transferService.updateTransfer(currentUser, pendingTransfer);
+            pendingTransfer.setTransferStatusID(TransferStatus.STATUS_ID_APPROVED);
+//            transferService.updateTransfer(currentUser, pendingTransfer);
            // System.out.println(transferService.determineTransferStatus(choice));
         } else if (choice == 2) {
             // int transferStatusID = transferService.getTransferStatus(currentUser, "Rejected").getTransferStatusID();
-            pendingTransfer.setTransferStatusID(choice);
-            transferService.updateTransfer(currentUser, pendingTransfer);
+            pendingTransfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
+//            transferService.updateTransfer(currentUser, pendingTransfer);
 
             //System.out.println(transferService.determineTransferStatus(choice));
         } else if (choice == 3) {

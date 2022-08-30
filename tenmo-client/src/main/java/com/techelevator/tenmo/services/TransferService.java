@@ -118,12 +118,18 @@ public class TransferService {
         headers.setBearerAuth(authenticatedUser.getToken());
         HttpEntity<Transfer> entity = new HttpEntity<>(transfer, headers);
 
-        String url = baseUrl + "transfers/" + transfer.getTransferID();
+        String url = baseUrl + "transfer/" + transfer.getTransferID();
 
         try {
-            restTemplate.exchange(url, HttpMethod.POST, entity, Transfer.class);
+            restTemplate.exchange(url, HttpMethod.PUT, entity, Transfer.class);
         } catch (RestClientResponseException e) {
-            if (e.getMessage().contains("Your needs exceed your resources. Please adjust your request.")) {
+            if (e.getMessage().contains(
+                    // This message matches up with message received in the HTTP response.
+                    // See line 6 of InsufficientFundsException.java on server side.
+                    "Funds unavailable"
+                    // The following message does not make it into the HTTP response.
+//                    "Your needs exceed your resources. Please adjust your request."*/
+            )) {
                 System.out.println("Transaction cannot be completed - insufficient funds available.");
             } else {
                 System.out.println("Request failed. Code:" + e.getRawStatusCode());

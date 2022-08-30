@@ -127,7 +127,7 @@ public class JdbcTransferDao implements TransferDao{
     public String getUserNameByAccountID(int accountID) {
         String sql = "select username from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id where account_id = ?;";
         String username = "";
-        username = jdbcTemplate.queryForObject(sql, String.class, username);
+        username = jdbcTemplate.queryForObject(sql, String.class, accountID);
         return username;
     }
 

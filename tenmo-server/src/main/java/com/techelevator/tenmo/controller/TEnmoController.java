@@ -6,6 +6,7 @@ import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.exception.AccountNotFoundException;
 import com.techelevator.tenmo.exception.InsufficientFundsException;
 import com.techelevator.tenmo.exception.SelfPaymentException;
+import com.techelevator.tenmo.exception.UnauthorizedTransferApprovalException;
 import com.techelevator.tenmo.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -76,7 +77,7 @@ public class TEnmoController {
         }
         return transfer;
     }
-    @RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "transfer/{id}", method = RequestMethod.GET)
     public Transfer getTransfer(@PathVariable int id) {
         return transferDao.findByTransferId(id);
     }
@@ -87,12 +88,19 @@ public class TEnmoController {
     }
 
     @RequestMapping(path = "transfer/{id}", method = RequestMethod.PUT)
-    public Transfer updateTransfer(@Valid @RequestBody Transfer updatedTransfer, @PathVariable int id) {
+    public Transfer updateTransfer(@Valid @RequestBody Transfer updatedTransfer, @PathVariable int id,
+               Principal principal) {
         Transfer existingTransfer = transferDao.findByTransferId(updatedTransfer.getTransferID());
         if (existingTransfer.getTransferStatusID() != TransferStatus.STATUS_ID_APPROVED
             && updatedTransfer.getTransferStatusID() == TransferStatus.STATUS_ID_APPROVED) {
+
+            if (!principal.getName().equals(transferDao.getUserNameByAccountID(updatedTransfer.getFromAccountID()))) {
+                throw new RuntimeException(new UnauthorizedTransferApprovalException());
+            }
+
             try {
-                accountDao.transferMoney(updatedTransfer.getFromAccountID(), updatedTransfer.getToAccountID(), updatedTransfer.getTransferAmt());
+                accountDao.transferMoney(updatedTransfer.getFromAccountID(), updatedTransfer.getToAccountID(),
+                        updatedTransfer.getTransferAmt());
                 transferDao.update(updatedTransfer);
             } catch (InsufficientFundsException | SelfPaymentException e) {
                 updatedTransfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
@@ -104,6 +112,9 @@ public class TEnmoController {
                 }
                 throw new RuntimeException(e);
             }
+        }
+        else {
+            transferDao.update(updatedTransfer);
         }
         return updatedTransfer;
     }
