@@ -3,8 +3,12 @@ package com.techelevator.tenmo;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class App {
 
@@ -22,12 +26,12 @@ public class App {
     private AuthenticatedUser otherUser;
     private Account otherAccount;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         App app = new App();
         app.run();
     }
 
-    private void run() {
+    private void run() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         consoleService.printGreeting();
         loginMenu();
         if (currentUser != null) {
@@ -35,7 +39,7 @@ public class App {
         }
     }
 
-    private void loginMenu() {
+    private void loginMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null) {
             consoleService.printLoginMenu();
@@ -51,13 +55,15 @@ public class App {
         }
     }
 
-    private void handleRegister() {
+    private void handleRegister() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         consoleService.printMessage("Please register a new user account");
         UserCredentials credentials = consoleService.promptForCredentials();
         if (authenticationService.register(credentials)) {
             consoleService.printMessage("Registration successful. You can now login.");
+            Sounds.playSound("happynoise.wav");
         } else {
             consoleService.printErrorMessage();
+            Sounds.playSound("Narf.wav");
         }
     }
 
@@ -69,7 +75,7 @@ public class App {
         }
     }
 
-    private void mainMenu() {
+    private void mainMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
         int menuSelection = -1;
         while (menuSelection != 0) {
             consoleService.printMainMenu();
@@ -85,6 +91,9 @@ public class App {
             } else if (menuSelection == 5) {
                 requestBucks();
             } else if (menuSelection == 0) {
+                System.out.println("Thanks for using the TEnmo Application!");
+                Sounds.playSound("Shutdown.wav");
+                TimeUnit.SECONDS.sleep(2); //allows shutdown sound to play fully
                 continue;
             } else {
                 consoleService.printMessage("Invalid Selection");
@@ -93,7 +102,7 @@ public class App {
         }
     }
 
-    private void viewCurrentBalance() { //create account model, each starts with 1,000.00.
+    private void viewCurrentBalance() throws UnsupportedAudioFileException, LineUnavailableException, IOException { //each starts with 1,000.00.
         BigDecimal balance = accountService.getBalance(currentUser);
         if (balance == null) {
             consoleService.printErrorMessage();
@@ -177,7 +186,7 @@ public class App {
         consoleService.printTransferDeets(id, sendingUserName, receivingUserName, transactionType, transactionStatus, amount);
     }
 
-    private void viewPendingRequests() {
+    private void viewPendingRequests() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         // TODO Auto-generated method stub
         int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
 
@@ -206,7 +215,7 @@ public class App {
         }
     }
 
-    private void sendBucks() {
+    private void sendBucks() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         Map<Long, PublicUserInfoDTO> users = accountService.getUsers(currentUser);
         if (users == null) {
             consoleService.printErrorMessage();
@@ -224,8 +233,10 @@ public class App {
                 consoleService.printOtherUserSelectionMenu(otherUsers.values());
                 long userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
                 if (userValidation(userSelection, users, currentUser)) {
-                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you sending?");
+                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you sending? $");
                     createTransfer((int) userSelection, chooseAmount, "Send", "Approved");
+                    System.out.println("Successfully Sent!");
+                    Sounds.playSound("LTTP_World_Warp.wav");
                 }
             }
         }
@@ -277,7 +288,7 @@ public class App {
         return userChoice;
     }
 
-    private void requestBucks() {
+    private void requestBucks() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         Map<Long, PublicUserInfoDTO> users = accountService.getUsers(currentUser);
         if (users == null) {
             consoleService.printErrorMessage();
@@ -291,28 +302,34 @@ public class App {
             }
             if (otherUsers.isEmpty()) {
                 consoleService.printNobodyToTransferMoneyWithMessage();
+                Sounds.playSound("TPIRloss.wav");
             } else {
                 consoleService.printOtherUserSelectionMenu(otherUsers.values());
-                long userSelection = consoleService.promptForInt("Please enter ID for recipient - otherwise select 0 to cancel.");
+                long userSelection = consoleService.promptForInt("Please enter ID to request money from - or enter '0' to cancel.");
                 if (userValidation(userSelection, users, currentUser)) {
-                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you asking for?");
+                    BigDecimal chooseAmount = consoleService.promptForBigDecimal("How much are you asking for? $");
                     createTransfer((int) userSelection, chooseAmount, "Request", "Pending");
+                    Sounds.playSound("LTTP_Warp.wav");
+                    System.out.println("Request sent. Check back later to see if it was approved.");
+
                 }
             }
         }
     }
 
-    public void approvalProcess(AuthenticatedUser authenticatedUser, Transfer pendingTransfer) {
+    public void approvalProcess(AuthenticatedUser authenticatedUser, Transfer pendingTransfer) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         consoleService.printApprovalOption();
         int choice = consoleService.promptForInt("Please choose an option: ");
         if (choice == 1) {
             //int transferStatusID = transferService.getTransferStatus(currentUser, "Approved").getTransferStatusID();
             pendingTransfer.setTransferStatusID(TransferStatus.STATUS_ID_APPROVED);
+            Sounds.playSound("CoinPayout.wav");
 //            transferService.updateTransfer(currentUser, pendingTransfer);
            // System.out.println(transferService.determineTransferStatus(choice));
         } else if (choice == 2) {
             // int transferStatusID = transferService.getTransferStatus(currentUser, "Rejected").getTransferStatusID();
             pendingTransfer.setTransferStatusID(TransferStatus.STATUS_ID_REJECTED);
+            Sounds.playSound("sadnoise.wav");
 //            transferService.updateTransfer(currentUser, pendingTransfer);
 
             //System.out.println(transferService.determineTransferStatus(choice));
@@ -330,7 +347,7 @@ public class App {
 
     }
 
-    private Transfer createTransfer(int accountChoiceUserId, BigDecimal amount, /*String amountString,*/ String transferType, String status) {
+    private Transfer createTransfer(int accountChoiceUserId, BigDecimal amount, /*String amountString,*/ String transferType, String status) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         int transferTypeId = transferService.getTransferType(currentUser, transferType).getTransferTypeId();
         int transferStatusId = transferService.getTransferStatus(currentUser, status).getTransferStatusId();
         int accountToId;
@@ -343,7 +360,7 @@ public class App {
             toAccount = accountService.getAccountByUserId(currentUser, accountChoiceUserId);
             if (toAccount == null) {
                 // TODO Handle this situation better
-                consoleService.printMessage("Couldn't account information for recipient.");
+                consoleService.printMessage("Couldn't find account information for recipient.");
                 return null;
             }
             fromAccount = accountService.getAccountByUserId(currentUser, currentUser.getUser().getId());
@@ -374,6 +391,7 @@ public class App {
         if (amount.compareTo(fromAccount.getBalance()) > 0) {
             // TODO Handle this situation better
             consoleService.printMessage("Insufficient funds.");
+            Sounds.playSound("TPIRloss.wav");
             return null;
         }
         Transfer transfer = new Transfer();
@@ -383,6 +401,8 @@ public class App {
         transfer.setTransferStatusID(transferStatusId);
         transfer.setTransferTypeID(transferTypeId);
         transferService.createTransfer(currentUser, transfer);
+
         return transfer;
+
     }
 }

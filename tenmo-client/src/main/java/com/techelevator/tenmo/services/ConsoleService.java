@@ -2,8 +2,12 @@ package com.techelevator.tenmo.services;
 
 
 import com.techelevator.tenmo.model.PublicUserInfoDTO;
+import com.techelevator.tenmo.model.Sounds;
 import com.techelevator.tenmo.model.UserCredentials;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Scanner;
@@ -18,7 +22,7 @@ public class ConsoleService {
     private static final String LIST_FOOTER = "---------";
 
     // TODO Improve this message
-    private static final String NOBODY_TO_TRANSFER_MONEY_WITH_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with!";
+    private static final String NOBODY_TO_TRANSFER_MONEY_WITH_MESSAGE = "There are no other users in the system. There's nobody else to transfer money with! You should make more friends!";
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -39,12 +43,13 @@ public class ConsoleService {
         System.out.println("*********************");
     }
 
-    public void printLoginMenu() {
+    public void printLoginMenu() throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         System.out.println();
         System.out.println("1: Register");
         System.out.println("2: Login");
         System.out.println("0: Exit");
         System.out.println();
+        Sounds.playSound("coin.wav");
     }
 
     public void printMainMenu() {
@@ -104,8 +109,9 @@ public class ConsoleService {
         System.out.println("An error occurred. Check the log for details.");
     }
 
-    public void printAccountBalance(BigDecimal balance) {
+    public void printAccountBalance(BigDecimal balance) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         System.out.println("Your current account balance is: " + NumberFormat.getCurrencyInstance().format(balance));
+        Sounds.playSound("coin.wav");
     }
 
     public static String padRight(String s, int n) {
