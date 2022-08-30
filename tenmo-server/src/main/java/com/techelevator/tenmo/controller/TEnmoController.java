@@ -76,9 +76,13 @@ public class TEnmoController {
         }
         return transfer;
     }
-
-    @RequestMapping(path = "transfer/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "transfers/{id}", method = RequestMethod.GET)
     public Transfer getTransfer(@PathVariable int id) {
+        return transferDao.findByTransferId(id);
+    }
+
+    @RequestMapping(path = "transfersviaid/{id}", method = RequestMethod.GET)
+    public Transfer getTransferFromTransferId(@PathVariable int id) {
         return transferDao.findByTransferId(id);
     }
 
@@ -127,5 +131,11 @@ public class TEnmoController {
     @RequestMapping(path="user/{id}", method = RequestMethod.GET)
     User getUserViaUserId(@PathVariable int id) {
         return userDao.getUserViaUserId(id);
+    }
+
+    @RequestMapping(path = "transfers/user/{userId}/pending", method = RequestMethod.GET)
+    Transfer[] getUnresolvedTransfersViaUserId(@PathVariable int userId){
+
+        return transferDao.getUnresolvedTransfersViaUserId(userId);
     }
 }

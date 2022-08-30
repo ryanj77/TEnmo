@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +114,16 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
+    public Transfer getTransferFromTransferId(int transferID) {
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_to, account_from, amount " +
+                "FROM transfer " +
+                "WHERE transfer_id = ?;";
+        Transfer transfer = null;
+        transfer= jdbcTemplate.queryForObject(sql,Transfer.class,transferID);
+        return transfer;
+    }
+
+    @Override
     public String getUserNameByAccountID(int accountID) {
         String sql = "select username from tenmo_user JOIN account ON tenmo_user.user_id = account.user_id where account_id = ?;";
         String username = "";
@@ -157,5 +166,26 @@ public class JdbcTransferDao implements TransferDao{
             transferType.setTransferTypeDescription(rs.getString("transfer_type_desc"));
         }
         return transferType;
+    }
+
+    @Override
+    public Transfer[]getUnresolvedTransfersViaUserId(int userID){
+        Transfer[] unresolvedList = new Transfer[0];
+List<Transfer> returnList = new ArrayList<>();
+        String sql = "t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount " +
+                "from transfer as t" +
+                "right join tenmo_user as tu " +
+                "on tu.account_id = t.account_to " +
+                "where tu.user_id = ?;";
+
+                SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userID);
+        while(results.next()){
+           Transfer transfer = mapRowToTransfer(results);
+            returnList.add(transfer);
+        }
+        for(int i =0; i < returnList.size(); i++){
+            unresolvedList[i]=returnList.get(i);
+        }
+        return unresolvedList;
     }
 }

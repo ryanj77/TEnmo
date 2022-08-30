@@ -139,26 +139,37 @@ public class App {
         //   consoleService.printMessage(transfer.getTransferID()+"      "+consoleService.typeFormattingRequestDisplay(transfer.getTransferTypeID())+ /*<--spacing done in formatting just need the user that isnt current user*/"         "+transfer.getTransferAmt());
 
         int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to view details - otherwise press 0 to cancel.");
-        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+//        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+        Transfer transferChoice = transferService.getTransferFromTransferId(currentUser,transferIdChoice);
         if (transferChoice != null) {
             printTransferDeets(currentUser, transferChoice);
         }
     }
 
 
-    private void printTransferDeets(AuthenticatedUser currentUser, Transfer transferChoice) {
+    private void printTransferDeets(AuthenticatedUser authenticatedUser, Transfer transferChoice) {
+       // Transfer currentTransfer = transferService.getTransferFromTransferId(currentUser, transferChoice.getTransferID());
         int id = transferChoice.getTransferID();
         BigDecimal amount = transferChoice.getTransferAmt();
         int sendingAccount = transferChoice.getFromAccountID();
         int receivingAccount = transferChoice.getToAccountID();
         int transactionTypeId = transferChoice.getTransferTypeID();
         int transactionStatusId = transferChoice.getTransferStatusID();
+//        int id = currentTransfer.getTransferID();
+//        BigDecimal amount = currentTransfer.getTransferAmt();
+//        int sendingAccount = currentTransfer.getFromAccountID();
+//        int receivingAccount = currentTransfer.getToAccountID();
+//        int transactionTypeId = currentTransfer.getTransferTypeID();
+//        int transactionStatusId = currentTransfer.getTransferStatusID();
 
-        int sendingUserId = accountService.getAccountByUserId(currentUser, sendingAccount).getUserId();
-        String sendingUserName = UserService.getUserViaUserId(currentUser, sendingUserId).getUsername();
-
-        int receivingUserId = accountService.getAccountByUserId(currentUser, receivingAccount).getUserId();
-        String receivingUserName = UserService.getUserViaUserId(currentUser, receivingUserId).getUsername();
+//        int sendingUserId = accountService.getAccountByUserId(currentUser, sendingAccount).getUserId();
+//        String sendingUserName = UserService.getUserViaUserId(currentUser, sendingUserId).getUsername();
+        User sendingUser= userService.findUsernameByAccountID(currentUser,transferChoice.getFromAccountID());
+            String sendingUserName = sendingUser.getUsername();
+//        int receivingUserId = accountService.getAccountByUserId(currentUser, receivingAccount).getUserId();
+//        String receivingUserName = UserService.getUserViaUserId(currentUser, receivingUserId).getUsername();
+        User recievingUser = userService.findUsernameByAccountID(currentUser,transferChoice.getToAccountID());
+        String receivingUserName = recievingUser.getUsername();
         //TODO add types and status for transfer/transaction
         String transactionType = transferService.determineTransferType(transactionTypeId);
         String transactionStatus = transferService.determineTransferStatus(transactionStatusId);
@@ -168,20 +179,31 @@ public class App {
 
     private void viewPendingRequests() {
         // TODO Auto-generated method stub
-        Transfer[] transfers = transferService.getUnresolvedTransfersViaUserId(currentUser);
-        consoleService.pendingRequestHeader();
+        int currentUserAccountId = accountService.getAccountByUserId(currentUser, Math.toIntExact(currentUser.getUser().getId())).getAccountId();
 
-        for (Transfer transfer : transfers) {
-            if (transfer.getTransferStatusID() == 1) {
-                printTransferDeets(currentUser, transfer);
+        Transfer[] transfers = transferService.getAllTransfers(currentUser);
+        List<Transfer> pendingRequests = new ArrayList<>();
+        consoleService.pendingRequestHeader();
+        if (transfers == null) {
+            System.out.println("No transfers to display.");
+        } else {
+
+            for (Transfer transfer : transfers) {
+                if (transfer.getTransferStatusID() == 1) {
+                    User user = userService.findUsernameByAccountID(currentUser, transfer.getFromAccountID());
+
+                    consoleService.printMessage(consoleService.padRight(String.valueOf(transfer.getTransferID()), 12) + consoleService.padRight("From:", 6) +
+                            consoleService.padRight(user.getUsername(), 17) + "$" + consoleService.padLeft(String.valueOf(transfer.getTransferAmt()), 7));                }
+            }
+            int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to approve or reject - otherwise press 0 to cancel.");
+            Transfer transferChoice = transferService.getTransferFromTransferId(currentUser,transferIdChoice);
+//                pendingRequests.add(transferChoice);
+//            Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
+
+            if (transferChoice != null) {
+                approvalProcess(currentUser, transferChoice);
             }
         }
-        int transferIdChoice = consoleService.promptForInt("\nEnter transfer ID to approve or reject - otherwise press 0 to cancel.");
-        Transfer transferChoice = transferIdValidation(transferIdChoice, transfers, currentUser);
-        if (transferChoice != null) {
-            approvalProcess(currentUser, transferChoice);
-        }
-
     }
 
     private void sendBucks() {
@@ -286,11 +308,14 @@ public class App {
         if (choice == 1) {
             //int transferStatusID = transferService.getTransferStatus(currentUser, "Approved").getTransferStatusID();
             pendingTransfer.setTransferStatusID(choice);
-            System.out.println(transferService.determineTransferStatus(choice));
+            transferService.updateTransfer(currentUser, pendingTransfer);
+           // System.out.println(transferService.determineTransferStatus(choice));
         } else if (choice == 2) {
             // int transferStatusID = transferService.getTransferStatus(currentUser, "Rejected").getTransferStatusID();
             pendingTransfer.setTransferStatusID(choice);
-            System.out.println(transferService.determineTransferStatus(choice));
+            transferService.updateTransfer(currentUser, pendingTransfer);
+
+            //System.out.println(transferService.determineTransferStatus(choice));
         } else if (choice == 3) {
             consoleService.printMessage("No changes will be made to this transfer");
             consoleService.printMainMenu();

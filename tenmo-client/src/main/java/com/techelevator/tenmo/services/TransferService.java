@@ -2,10 +2,7 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.*;
 import com.techelevator.util.BasicLogger;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -71,7 +68,7 @@ public class TransferService {
     public Transfer getTransferFromTransferId(AuthenticatedUser authenticatedUser, int id) {
         Transfer transfer = null;
         try {
-            transfer = restTemplate.exchange(baseUrl + "transfers/" + id,
+            transfer = restTemplate.exchange(baseUrl + "transfersviaid/" + id,
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer.class).getBody();
@@ -99,10 +96,11 @@ public class TransferService {
 
     }
 
-    public Transfer[] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser) {
-        Transfer[] transfers = null;
+    public Transfer[] getUnresolvedTransfersViaUserId(AuthenticatedUser authenticatedUser, int userID) {
+        Transfer[] transfers = new Transfer[0];
         try {
-            transfers = restTemplate.exchange(baseUrl + "transfers/user/" + authenticatedUser.getUser().getId() + "/pending",
+
+            transfers = restTemplate.exchange(baseUrl + "transfers/user/" + userID + "/pending",
                     HttpMethod.GET,
                     genEntity(authenticatedUser),
                     Transfer[].class).getBody();

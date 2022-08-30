@@ -162,10 +162,10 @@ public class ConsoleService {
     }
 
     public void pendingRequestHeader(){
-        System.out.println("-----------------------");
-        System.out.println("Pending Transfers");
-        System.out.println("ID      From/To        Amount");
-        System.out.println("-----------------------");
+        System.out.println("-------------------------------------------");
+        System.out.println("Transfers");
+        System.out.println("ID          To                 Amount");
+        System.out.println("-------------------------------------------");
     }
 
     public void typeFormattingRequestDisplay(int type){

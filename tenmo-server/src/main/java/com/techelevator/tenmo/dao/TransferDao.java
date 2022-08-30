@@ -25,4 +25,7 @@ public interface TransferDao {
 
     TransferType getTransferType(String type);
     void update(Transfer transfer);
+    Transfer getTransferFromTransferId(int transferID);
+
+    Transfer[] getUnresolvedTransfersViaUserId(int userID);
 }
